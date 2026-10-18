@@ -1,2 +1,2 @@
-# quote-app-fastapi
-Simple quote app built using FastAPI
+# quote-api-fastapi
+Simple quote api built using FastAPI
