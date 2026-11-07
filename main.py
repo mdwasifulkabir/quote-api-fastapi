@@ -14,7 +14,7 @@ app = FastAPI()
 
 @app.get("/")
 def root():
-  return {"Welcome to the quote api"}
+  return {"message": "Welcome to the quote api"}
 
 path = Path(__file__).parent / "quotes.txt"
 
@@ -38,10 +38,15 @@ def all_quotes(author: str | None = None):
 @app.get("/quotes/{item_id}", response_model = Quote)
 def get_quote(item_id: int):
   if item_id < 0 or item_id >= len(quotes):
-    return HTTPException(status_code=404, detail="Quote not found")
+    raise HTTPException(status_code=404, detail="Quote not found")
 
   return quotes[item_id]
 
 @app.get("/quote", response_model= Quote)
 def random_quote():
   return random.choice(quotes)
+
+@app.post("/quotes/", response_model=Quote, status_code=201)
+async def post_quote(quote: Quote):
+  quotes.append(quote.model_dump)
+  return quote
