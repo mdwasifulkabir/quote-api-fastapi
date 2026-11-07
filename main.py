@@ -30,16 +30,12 @@ def all_quotes(author: str | None = None, ):
   return results
 
 @app.get("/quotes/{item_id}")
-def get_quote(item_id: str):
-  try:
-    return quotes[item_id]
-  except:
-    return HTTPException
+def get_quote(item_id: int):
+  if item_id < 0 or item_id >= len(quotes):
+    return HTTPException(status_code=404, detail="Quote not found")
+
+  return quotes[item_id]
 
 @app.get("/quote")
 def random_quote():
   return random.choice(quotes)
-
-@app.get("/quote/{quote_id}")
-def get_quote_by_id():
-  return quotes[quote]
