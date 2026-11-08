@@ -7,7 +7,12 @@ from fastapi import HTTPException
 from pydantic import BaseModel, Field
 
 class Quote(BaseModel):
-  quote: str = Field(min_length=1)
+  quote: str = Field(min_length=5)
+  author: str
+
+class QuoteWithID(BaseModel):
+  id: int
+  quote: str = Field(min_length=5)
   author: str
 
 app = FastAPI()
@@ -46,14 +51,24 @@ def get_quote(item_id: int):
 def random_quote():
   return random.choice(quotes)
 
-@app.post("/quotes/", response_model=Quote, status_code=201)
+@app.post("/quotes/", response_model=QuoteWithID, status_code=201)
 def post_quote(quote: Quote):
   quotes.append(quote.model_dump())
-  return quote
+
+  return {
+    id: len(quotes)-1
+    **quote.model_dump()
+  }
 
 @app.put("/quotes/{item_id}", response_model=Quote)
 def edit_quote(quote: Quote, item_id: int):
-  quotes[item_id] = quote
+  if item_id < 0 or item_id >= len(quotes):
+    raise HTTPException(
+      status_code=404,
+      detail= "Quote Not Found"
+    )
+
+  quotes[item_id] = quote.model_dump()
   return quote
 
 @app.delete("/quotes/{item_id}")
