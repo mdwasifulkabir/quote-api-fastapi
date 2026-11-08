@@ -7,8 +7,7 @@ from fastapi import HTTPException
 from pydantic import BaseModel, Field
 
 class Quote(BaseModel):
-  #must not be an empty string
-  quote: str = Field(min_length=5)
+  quote: str = Field(min_length=1)
   author: str
 
 app = FastAPI()
@@ -48,6 +47,21 @@ def random_quote():
   return random.choice(quotes)
 
 @app.post("/quotes/", response_model=Quote, status_code=201)
-async def post_quote(quote: Quote):
+def post_quote(quote: Quote):
   quotes.append(quote.model_dump())
   return quote
+
+@app.put("/quotes/{item_id}", response_model=Quote)
+def edit_quote(quote: Quote, item_id: int):
+  quotes[item_id] = quote
+  return quote
+
+@app.delete("/quotes/{item_id}")
+def delete_quote(item_id: int):
+  if item_id < 0 or item_id >= len(quotes):
+    raise HTTPException(
+      status_code= 404,
+      detail= "Quote Not Found"
+    )
+
+  del quotes[item_id]
