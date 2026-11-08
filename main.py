@@ -4,10 +4,11 @@ import random
 from pathlib import Path
 from fastapi import HTTPException
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 class Quote(BaseModel):
-  quote: str
+  #must not be an empty string
+  quote: str = Field(min_length=5)
   author: str
 
 app = FastAPI()
@@ -48,5 +49,5 @@ def random_quote():
 
 @app.post("/quotes/", response_model=Quote, status_code=201)
 async def post_quote(quote: Quote):
-  quotes.append(quote.model_dump)
+  quotes.append(quote.model_dump())
   return quote
