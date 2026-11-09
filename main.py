@@ -71,7 +71,7 @@ def edit_quote(quote: Quote, item_id: int):
   quotes[item_id] = quote.model_dump()
   return quote
 
-@app.delete("/quotes/{item_id}")
+@app.delete("/quotes/{item_id}", response_model = Quote)
 def delete_quote(item_id: int):
   if item_id < 0 or item_id >= len(quotes):
     raise HTTPException(
@@ -79,4 +79,5 @@ def delete_quote(item_id: int):
       detail= "Quote Not Found"
     )
 
-  del quotes[item_id]
+  deleted_quote = quotes.pop(item_id)
+  return deleted_quote
